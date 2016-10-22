@@ -1,9 +1,7 @@
-//
-// Created by sagara on 13/09/16.
-//
-
 #ifndef SGM_MATRIX_HPP
 #define SGM_MATRIX_HPP
+
+#include <vector>
 
 #ifdef DEBUG
 #include <iostream>
@@ -13,21 +11,23 @@ template <typename T>
 class Matrix
 {
 private:
-    T *mData;
-    uint16_t mLine;
-    uint16_t mColumn;
+    std::vector<T> mData;
+    uint64_t mColumn;
+    uint64_t mLine;
     T mDefaultValue;
 
     void init_data()
     {
-        for (uint32_t cpt(0) ; cpt < mLine * mColumn ; ++cpt)
-            mData[cpt] = mDefaultValue;
+        for (typename std::vector<T>::iterator it = mData.begin() ; it != mData.cend() ; ++it)
+            *it = mDefaultValue;
     }
 
     void delete_data()
+    {}
+
+    void reset_data()
     {
-        if (mData != nullptr)
-            delete []mData;
+        init_data();
     }
 
     Matrix(const Matrix &m) = delete;
@@ -36,57 +36,69 @@ private:
     const Matrix &operator = (const Matrix &&m) = delete;
 
 public:
-    Matrix(const uint16_t &line, const uint16_t &column, const T &default_value = T()):
-            mData(new T[line * column]), mLine(line), mColumn(column), mDefaultValue(default_value)
+    Matrix(const uint64_t &line, const uint64_t &column, const T &default_value = T()):
+            mData(line * column), mColumn(column), mLine(line), mDefaultValue(default_value)
     {
         init_data();
     }
 
-    ~Matrix()
+    virtual ~Matrix()
     {
         delete_data();
     }
 
-    inline const T &operator()(const uint16_t &line, const uint16_t &column) const
+    inline const T &operator()(const uint64_t &line, const uint64_t &column) const
     {
-        return mData[(line * mColumn) + column];
+        if (line * mColumn + column >= mLine * mColumn)
+            throw std::logic_error("out of bound");
+        return *(mData.begin() + (line * mColumn + column));
     }
 
-    inline T operator()(const uint16_t &line, const uint16_t &column)
+    inline T &operator()(const uint64_t &line, const uint64_t &column)
     {
-        return mData[(line * mColumn) + column];
+        if (line * mColumn + column >= mLine * mColumn)
+            throw std::logic_error("out of bound");
+        return *(mData.begin() + (line * mColumn + column));
     }
 
-    inline const uint16_t line() const
+    inline const uint64_t line() const
     {
         return mLine;
     }
 
-    inline const uint16_t column() const
+    inline const uint64_t column() const
     {
         return mColumn;
     }
 
-    void resize(const uint16_t &line, const uint16_t &column, const T &default_value = T())
+    void resize(const uint64_t &line, const uint64_t &column, const T &default_value = T())
     {
         delete_data();
         mColumn = column;
         mLine = line;
         mDefaultValue = default_value;
-        mData = new T[mLine * mColumn];
+        mData.resize(mColumn * mLine);
         init_data();
     }
 
 #ifdef DEBUG
     void print() const
     {
-        for (uint32_t cpt(0) ; cpt < mLine * mColumn ; ++cpt)
+        typename std::vector<T>::const_iterator it = mData.cbegin();
+        uint64_t cpt(0);
+        while (it != mData.cend())
         {
-            if (cpt != 0 && cpt % mColumn == 0)
-                std::cout << '\n';
-            else if (cpt % mColumn != 0)
-                std::cout << ' ';
-            std::cout << mData[cpt];
+            if (cpt == mColumn - 1)
+            {
+                std::cout << *it << '\n';
+                cpt = 0;
+            }
+            else
+            {
+                std::cout << *it << ' ';
+                ++cpt;
+            }
+            ++it;
         }
     }
 #endif
