@@ -7,82 +7,87 @@
 #include <iostream>
 #endif
 
-template <typename T>
-class Matrix
+namespace sgm
 {
-private:
-    std::vector<T> mData;
-    uint64_t mColumn;
-    uint64_t mLine;
-    T mDefaultValue;
-
-    void init_data()
+    namespace matrix
     {
-        for (typename std::vector<T>::iterator it = mData.begin() ; it != mData.cend() ; ++it)
-            *it = mDefaultValue;
-    }
+        template<typename T>
+        class Matrix
+        {
+        private:
+            std::vector<T> mData;
+            uint64_t mColumn;
+            uint64_t mLine;
+            T mDefaultValue;
 
-    void delete_data()
-    {}
+            void init_data()
+            {
+                for (typename std::vector<T>::iterator it = mData.begin(); it != mData.cend(); ++it)
+                    *it = mDefaultValue;
+            }
 
-    void reset_data()
-    {
-        init_data();
-    }
+            void delete_data()
+            {}
 
-    Matrix(const Matrix &m) = delete;
-    Matrix(const Matrix &&m) = delete;
-    const Matrix &operator = (const Matrix &m) = delete;
-    const Matrix &operator = (const Matrix &&m) = delete;
+            void reset_data()
+            {
+                init_data();
+            }
 
-public:
-    Matrix(const uint64_t &line, const uint64_t &column, const T &default_value = T()):
-            mData(line * column), mColumn(column), mLine(line), mDefaultValue(default_value)
-    {
-        init_data();
-    }
+            Matrix(const Matrix &m) = delete;
+            Matrix(const Matrix &&m) = delete;
 
-    virtual ~Matrix()
-    {
-        delete_data();
-    }
+            const Matrix &operator=(const Matrix &m) = delete;
+            const Matrix &operator=(const Matrix &&m) = delete;
 
-    inline const T &operator()(const uint64_t &line, const uint64_t &column) const
-    {
-        if (line * mColumn + column >= mLine * mColumn)
-            throw std::logic_error("out of bound");
-        return *(mData.begin() + (line * mColumn + column));
-    }
+        public:
+            Matrix(const uint64_t &line = 0, const uint64_t &column = 0, const T &default_value = T()) :
+                    mData(line * column), mColumn(column), mLine(line), mDefaultValue(default_value)
+            {
+                init_data();
+            }
 
-    inline T &operator()(const uint64_t &line, const uint64_t &column)
-    {
-        if (line * mColumn + column >= mLine * mColumn)
-            throw std::logic_error("out of bound");
-        return *(mData.begin() + (line * mColumn + column));
-    }
+            virtual ~Matrix()
+            {
+                delete_data();
+            }
 
-    inline const uint64_t line() const
-    {
-        return mLine;
-    }
+            inline const T &operator()(const uint64_t &line, const uint64_t &column) const
+            {
+                if (line * mColumn + column >= mLine * mColumn)
+                    throw std::logic_error("out of bound");
+                return *(mData.begin() + (line * mColumn + column));
+            }
 
-    inline const uint64_t column() const
-    {
-        return mColumn;
-    }
+            inline T &operator()(const uint64_t &line, const uint64_t &column)
+            {
+                if (line * mColumn + column >= mLine * mColumn)
+                    throw std::logic_error("out of bound");
+                return *(mData.begin() + (line * mColumn + column));
+            }
 
-    void resize(const uint64_t &line, const uint64_t &column, const T &default_value = T())
-    {
-        delete_data();
-        mColumn = column;
-        mLine = line;
-        mDefaultValue = default_value;
-        mData.resize(mColumn * mLine);
-        init_data();
-    }
+            inline const uint64_t line() const
+            {
+                return mLine;
+            }
+
+            inline const uint64_t column() const
+            {
+                return mColumn;
+            }
+
+            void resize(const uint64_t &line, const uint64_t &column, const T &default_value = T())
+            {
+                delete_data();
+                mColumn = column;
+                mLine = line;
+                mDefaultValue = default_value;
+                mData.resize(mColumn * mLine);
+                init_data();
+            }
 
 #ifdef DEBUG
-    void print() const
+            void print() const
     {
         typename std::vector<T>::const_iterator it = mData.cbegin();
         uint64_t cpt(0);
@@ -102,6 +107,8 @@ public:
         }
     }
 #endif
-};
+        };
+    }
+}
 
 #endif //SGM_MATRIX_HPP
