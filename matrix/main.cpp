@@ -3,7 +3,7 @@
 
 int		main(void)
 {
-    Matrix<int> m(5, 10);
+    sgm::matrix::Matrix<int> m(5, 10);
     m(4, 9) = 10;
     std::cout << "hello" << std::endl;
     std::cout << m.line() << ' ' << m.column() << std::endl;
