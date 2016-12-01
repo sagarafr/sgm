@@ -1,1 +1,1 @@
-Init commit ;)
+SGM = Sagara Game Modules
